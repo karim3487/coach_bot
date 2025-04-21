@@ -1,0 +1,143 @@
+[project]
+name = "coach-bot"
+description = ""
+license = "MIT"
+requires-python = ">=3.10"
+authors = [
+    { name = "Forden", email = "24463229+Forden@users.noreply.github.com" }
+]
+maintainers = [
+    { name = "Forden", email = "24463229+Forden@users.noreply.github.com" }
+]
+readme = "README.md"
+packages = [{ include = "coach_bot" }]
+dynamic = ["version", "dependencies"]
+
+[project.urls]
+homepage = "https://github.com/Forden/aiogram-bot-template"
+repository = "https://github.com/Forden/aiogram-bot-template"
+
+[project.scripts]
+coach_bot = "coach_bot.bot:main"
+
+[tool.poetry]
+requires-poetry = ">=2.0"
+package-mode = false
+version = "1.0"
+name = "coach_bot"
+packages = [{ include = "coach_bot" }]
+
+[tool.poetry.requires-plugins]
+poetry-plugin-export = ">=1.8"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+aiogram = "^3"
+environs = "^14"
+redis = "^5"
+asyncpg = "0.30.0"
+pydantic = "^2"
+structlog = "25.1.0"
+aiojobs = "^1"
+orjson = "^3.10"
+tenacity = "^9"
+pytz = "^2025"
+aiohttp = "~3"
+arrow = "^1"
+sqlalchemy = "^2.0.40"
+psycopg = "^3.2.6"
+psycopg2 = "^2.9.10"
+httpx = "^0.28.1"
+aiogram-dialog = "^2.3.1"
+
+[tool.poetry.group.dev]
+optional = true
+
+[tool.poetry.group.dev.dependencies]
+mypy = "^1.9.0"
+black = { extras = ["d"], version = "^25" }
+ruff = "^0.9"
+isort = "~6"
+types-pytz = "^2025"
+deptry = "0.23.0"
+pip-audit = "^2"
+pytest-asyncio = "^0.26.0"
+datamodel-code-generator = "^0.30.0"
+
+
+[tool.black]
+target-version = ["py310"]
+
+[tool.isort]
+profile = "black"
+py_version = 310
+force_alphabetical_sort_within_sections = true
+group_by_package = true
+
+[tool.mypy]
+python_version = "3.10"
+files = "bot.py"
+plugins = "pydantic.mypy"
+warn_unused_configs = true
+ignore_missing_imports = false
+follow_imports_for_stubs = true
+disallow_any_generics = true
+disallow_subclassing_any = true
+disallow_untyped_calls = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_return_any = true
+warn_unreachable = true
+strict_equality = true
+strict_bytes = true
+extra_checks = true
+show_error_context = true
+show_error_code_links = true
+show_error_end = true
+show_error_codes = true
+pretty = true
+namespace_packages = true
+show_absolute_path = true
+
+[[tool.mypy.overrides]]
+module = "asyncpg.*"
+ignore_missing_imports = true
+
+[tool.ruff]
+target-version = "py310"
+preview = true
+
+
+
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = [
+    "E501", # line too long, controlled by black
+    "ANN401", # attempt to replace mypy, ignored in favor of mypy
+    "RET504", # opinionated
+    "PLC0414", # breaks mypy unused imports
+    "SIM108", # forces to use ternary operator
+    "D", # unnecessary
+    "I", # unnecessary
+    "CPY001", # unnecessary
+    "RUF001",
+    "RUF002",
+    "RUF003",
+]
+unfixable = ["B"]
+exclude = ["coach_bot/models/schemas.py", "coach_bot/handlers/test/**"]
+
+[tool.ruff.format]
+line-ending = "lf"
+
+[tool.ruff.lint.per-file-ignores]
+"**/{tests,docs,tools}/*" = ["E402"]
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
