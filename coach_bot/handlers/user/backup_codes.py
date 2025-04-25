@@ -35,7 +35,8 @@ async def on_get_backup_codes(
     _btn: Button,
     manager: DialogManager,
 ) -> None:
-    await manager.reset_stack()
+    await c.answer()
+    await manager.done()
 
     user_id = c.from_user.id
 
@@ -46,7 +47,6 @@ async def on_get_backup_codes(
         parse_mode="HTML",
         disable_web_page_preview=True,
     )
-    await c.answer()
 
-    await asyncio.sleep(60)
+    await asyncio.sleep(10)
     await sent.delete()

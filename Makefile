@@ -8,5 +8,11 @@ lint:
 	poetry run python -m mypy $(PROJECT_DIR) --config-file pyproject.toml
 	poetry run python -m black $(PROJECT_DIR) --config pyproject.toml
 
+schema_build:
+	poetry run datamodel-codegen \
+	--url 'http://localhost:8000/api/v1/schema' \
+	--input-file-type openapi \
+	--output coach_bot/models/schemas.py
+
 init_project:
 	poetry run python infra/scripts/init_project.py

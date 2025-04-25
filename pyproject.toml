@@ -49,6 +49,7 @@ psycopg = "^3.2.6"
 psycopg2 = "^2.9.10"
 httpx = "^0.28.1"
 aiogram-dialog = "^2.3.1"
+python-slugify = "^8.0.4"
 
 [tool.poetry.group.dev]
 optional = true

@@ -17,15 +17,15 @@ logger = logging.getLogger(__name__)
 
 
 # ───────────────────────── getters ──────────────────────── #
-async def main_getter(dialog_manager: DialogManager) -> dict[str]:
+async def main_getter(dialog_manager: DialogManager, **kwargs) -> dict[str]:
     tg_user = dialog_manager.event.from_user
     telegram_id = tg_user.id
 
     try:
         backend_user = await get_user(telegram_id)
-        name = backend_user.full_name
+        name = backend_user.name
     except httpx.RequestError as e:
-        logger.exception("Backend unavailable", exc_info=e)
+        logger.error("Backend unavailable", exc_info=e)
         # send one‑time warning
         msg: types.Message = (
             dialog_manager.event.message
@@ -36,18 +36,20 @@ async def main_getter(dialog_manager: DialogManager) -> dict[str]:
         # fallback to Telegram name
         name = tg_user.first_name or tg_user.username or "there"
     except Exception as e:
-        logger.exception("Error while fetching user", exc_info=e)
+        logger.error("Error while fetching user", exc_info=e)
         name = tg_user.first_name or tg_user.username or "there"
 
     return {"name": name}
 
 
-async def profile_getter(dialog_manager: DialogManager) -> dict[str, Any]:
+async def profile_getter(dialog_manager: DialogManager, **kwargs) -> dict[str, Any]:
     user = await get_user(dialog_manager.event.from_user.id)
     if user:
         user_dict = user.model_dump()
-        user_dict["training_time"] = user.training_time.strftime("%H:%M")
-        user_dict["training_days"] = ", ".join(user.training_days)
+        user_dict["preferred_time"] = user.preferred_time.strftime("%H:%M")
+        user_dict["available_days"] = ", ".join(user.available_days)
+        user_dict["training_location"] = user.training_location.value.title()
+
         return user_dict
     return {"": ""}
 

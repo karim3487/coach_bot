@@ -19,7 +19,7 @@ async def ask_login_code(message: types.Message, state: FSMContext) -> None:
 
 
 async def submit_login_code(
-    message: types.Message, state: FSMContext, dialog_manager: DialogManager
+    message: types.Message, state: FSMContext, dialog_manager: DialogManager,
 ) -> None:
     telegram_id = str(message.from_user.id)
     code = message.text.strip()

@@ -36,6 +36,10 @@ def prepare_router() -> Router:
         StateFilter(states.registration.RegistrationState.full_name),
     )
     user_router.message.register(
+        registration.get_gender,
+        StateFilter(states.registration.RegistrationState.gender),
+    )
+    user_router.message.register(
         registration.get_age,
         StateFilter(states.registration.RegistrationState.age),
     )
@@ -57,7 +61,7 @@ def prepare_router() -> Router:
     )
     user_router.message.register(
         registration.get_place,
-        StateFilter(states.registration.RegistrationState.training_place),
+        StateFilter(states.registration.RegistrationState.training_location),
     )
     user_router.message.register(
         registration.get_time,
