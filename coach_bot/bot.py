@@ -9,14 +9,13 @@ from aiohttp import web
 
 from coach_bot import handlers, utils, web_handlers
 from coach_bot.data import config
-from coach_bot.handlers.user import menu
+from coach_bot.dialogs import dialogs
 from coach_bot.middlewares import StructLoggingMiddleware
 
 
 def setup_handlers(dp: Dispatcher) -> None:
-    dp.include_router(menu.main_menu)
-    dp.include_router(menu.settings_dialog)
-    dp.include_router(menu.profile_dialog)
+    for dialog in dialogs:
+        dp.include_router(dialog)
     dp.include_router(handlers.user.prepare_router())
     setup_dialogs(dp)
 
@@ -120,7 +119,8 @@ def main() -> None:
 
     dp.startup.register(aiogram_on_startup_polling)
     dp.shutdown.register(aiogram_on_shutdown_polling)
-    asyncio.run(dp.start_polling(bot))
+    asyncio.run(dp.start_polling(bot, drop_pending_updates=True))
+    # asyncio.run(dp.start_polling(bot))
 
 
 if __name__ == "__main__":

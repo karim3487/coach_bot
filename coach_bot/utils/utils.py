@@ -4,7 +4,7 @@ from aiogram import types
 
 
 def enum_to_list(enum: Enum) -> list[str]:
-    return [item.value.title() for item in enum]
+    return [item.value for item in enum]
 
 
 def format_question(label: str, value: Any | None, *, edit_mode: bool) -> str:
