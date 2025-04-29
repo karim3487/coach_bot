@@ -59,9 +59,13 @@ class CoachApiClient:
         data["goal"] = data["goal_display"]
         return ClientProfileShort(**data)
 
-    async def get_goals(self) -> list[str]:
+    async def get_goals(self) -> list[Goal]:
         response = await self._safe_request("GET", self._goals_url)
-        return response.json()
+        data = response.json()
+        if not 'results' in data:
+            logger.error("Invalid response format: missing 'results' key")
+            raise CoachApiClientError("Invalid server response: missing results key")
+        return [Goal(**goal) for goal in data["results"]]
 
     async def get_goal(self, goal_id: int) -> Goal | None:
         response = await self._safe_request("GET", f"{self._goals_url}{goal_id}/")
@@ -87,7 +91,9 @@ class CoachApiClient:
             f"{self._backup_codes_url}generate/",
             json={"telegram_id": telegram_id},
         )
-        return response.json()
+        data = response.json()
+        return data
+        
 
     async def auth_with_backup_code(self, code: str, telegram_id: int) -> None:
         response = await self._safe_request(
