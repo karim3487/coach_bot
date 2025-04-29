@@ -9,6 +9,7 @@ async def goal_getter(dialog_manager: DialogManager, **kwargs):
     goals = await api_client.get_goals()
     return {"goals": [goal.dict() for goal in goals]}
 
+
 async def get_profile_form_data(dialog_manager: DialogManager, **kwargs):
     data = dialog_manager.dialog_data
     goal_display = await api_client.get_goal(data["goal"])

@@ -13,6 +13,7 @@ schema_build:
 	--url 'http://localhost:8000/api/v1/schema' \
 	--input-file-type openapi \
 	--output coach_bot/models/schemas.py
+	./scripts/replace_slug.sh coach_bot/models/schemas.py
 
 init_project:
 	poetry run python infra/scripts/init_project.py

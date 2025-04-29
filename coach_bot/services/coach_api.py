@@ -3,8 +3,18 @@ import logging
 import httpx
 
 from coach_bot.data import config
-from coach_bot.exceptions.api import CoachApiClientError, BackupCodeInvalidOrUsed, TelegramIDAlreadyLinked
-from coach_bot.models.schemas import ClientProfileCreate, ClientProfileShort, Goal
+from coach_bot.exceptions.api import (
+    CoachApiClientError,
+    BackupCodeInvalidOrUsed,
+    TelegramIDAlreadyLinked,
+)
+from coach_bot.models.schemas import (
+    ClientProfileCreate,
+    ClientProfileShort,
+    Goal,
+    Plan,
+    PaginatedProgramList,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -15,6 +25,8 @@ class CoachApiClient:
         self._profiles_url = f"{config.BACKEND_URL}/profiles/"
         self._goals_url = f"{config.BACKEND_URL}/goals/"
         self._backup_codes_url = f"{config.BACKEND_URL}/backup-codes/"
+        self._programs_url = f"{config.BACKEND_URL}/programs/"
+        self._plans_url = f"{config.BACKEND_URL}/plans/"
 
     async def close(self) -> None:
         await self._client.aclose()
@@ -37,10 +49,14 @@ class CoachApiClient:
             )
             raise CoachApiClientError(f"Server error: {error_text}") from e
         except httpx.RequestError as e:
-            logger.error("Request error during %s %s", method.upper(), url, exc_info=True)
+            logger.error(
+                "Request error during %s %s", method.upper(), url, exc_info=True,
+            )
             raise CoachApiClientError("Network request failed") from e
 
-    async def create_or_update_user(self, user: ClientProfileCreate) -> ClientProfileShort | None:
+    async def create_or_update_user(
+        self, user: ClientProfileCreate,
+    ) -> ClientProfileShort | None:
         response = await self._safe_request(
             "POST",
             f"{self._profiles_url}upsert/",
@@ -62,7 +78,7 @@ class CoachApiClient:
     async def get_goals(self) -> list[Goal]:
         response = await self._safe_request("GET", self._goals_url)
         data = response.json()
-        if not 'results' in data:
+        if "results" not in data:
             logger.error("Invalid response format: missing 'results' key")
             raise CoachApiClientError("Invalid server response: missing results key")
         return [Goal(**goal) for goal in data["results"]]
@@ -80,7 +96,9 @@ class CoachApiClient:
         return Goal(**response.json())
 
     async def get_profile(self, telegram_id: int) -> ClientProfileShort | None:
-        response = await self._safe_request("GET", f"{self._profiles_url}by-telegram/{telegram_id}/")
+        response = await self._safe_request(
+            "GET", f"{self._profiles_url}by-telegram/{telegram_id}/",
+        )
         if response.status_code == 404:
             return None
         return ClientProfileShort(**response.json())
@@ -93,7 +111,6 @@ class CoachApiClient:
         )
         data = response.json()
         return data
-        
 
     async def auth_with_backup_code(self, code: str, telegram_id: int) -> None:
         response = await self._safe_request(
@@ -116,12 +133,48 @@ class CoachApiClient:
                 logger.warning("Telegram ID already linked to another profile")
                 raise TelegramIDAlreadyLinked()
 
-            logger.warning("Unknown 400 error during backup code auth: %s", error_detail)
+            logger.warning(
+                "Unknown 400 error during backup code auth: %s", error_detail,
+            )
             raise CoachApiClientError(f"Authentication failed: {error_detail}")
 
         if response.status_code == 401:
             logger.warning("Unauthorized backup code")
             raise BackupCodeInvalidOrUsed()
+
+    async def get_programs(self, goal_id: int, location: str) -> PaginatedProgramList:
+        response = await self._safe_request(
+            "GET", f"{self._programs_url}?goal={goal_id}&location={location}",
+        )
+        return PaginatedProgramList(**response.json())
+
+    async def create_plan_from_program(self, telegram_id: int, program_id: int) -> Plan:
+        response = await self._safe_request(
+            "POST",
+            f"{self._plans_url}create/from-program/by-telegram/",
+            json={"telegram_id": telegram_id, "program_id": program_id},
+        )
+        if response.status_code == 400:
+            raise CoachApiClientError("Failed to create plan")
+        return Plan(**response.json())
+
+    async def create_plan_auto(self, telegram_id: int) -> Plan:
+        response = await self._safe_request(
+            "POST",
+            f"{self._plans_url}create/ai/by-telegram/",
+            json={"telegram_id": telegram_id},
+        )
+        if response.status_code == 400:
+            raise CoachApiClientError("Failed to create plan")
+        return Plan(**response.json())
+
+    async def get_current_plan(self, telegram_id: int) -> Plan | None:
+        response = await self._safe_request(
+            "GET", f"{self._plans_url}current/by-telegram/{telegram_id}/",
+        )
+        if response.status_code == 404:
+            return None
+        return Plan(**response.json())
 
 
 api_client = CoachApiClient()

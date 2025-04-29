@@ -30,3 +30,9 @@ LOCATIONS = [
     ("home", "🏠 Дом"),
     ("outdoors", "🏞️ На улице"),
 ]
+
+PLAN_STATUSES = [
+    ("active", "🟢 Активный"),
+    ("completed", "✅ Завершён"),
+    ("cancelled", "❌ Отменён"),
+]

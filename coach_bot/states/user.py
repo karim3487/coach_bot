@@ -41,3 +41,12 @@ class ProfileForm(StatesGroup):
     preferred_time = State()
     goal = State()
     confirm = State()
+
+
+class PlanCreateMenu(StatesGroup):
+    start = State()
+    choose_program = State()
+
+
+class UserPlanMenu(StatesGroup):
+    menu = State()

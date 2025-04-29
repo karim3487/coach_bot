@@ -21,7 +21,7 @@ from coach_bot.dialogs.profile_form.handlers.checkbox_handlers import (
 from coach_bot.dialogs.profile_form.handlers.input_handlers import on_text_input, selection_handler
 from coach_bot.dialogs.profile_form.handlers.utils import build_checkbox_group
 from coach_bot.models.schemas import ClientProfileCreate
-from coach_bot.states.user import ProfileForm, UserMainMenu
+from coach_bot.states.user import ProfileForm, PlanCreateMenu
 from coach_bot.services.coach_api import api_client
 from coach_bot.utils import constants
 
@@ -51,7 +51,7 @@ async def on_finish(
         return
 
     await manager.start(
-        state=UserMainMenu.menu,
+        state=PlanCreateMenu.start,
         mode=StartMode.RESET_STACK,
     )
 
