@@ -13,7 +13,7 @@ from coach_bot.models.schemas import (
     ClientProfileShort,
     Goal,
     Plan,
-    PaginatedProgramList,
+    PaginatedProgramList, Workout, ProgressCreateByTelegram,
 )
 
 logger = logging.getLogger(__name__)
@@ -27,6 +27,8 @@ class CoachApiClient:
         self._backup_codes_url = f"{config.BACKEND_URL}/backup-codes/"
         self._programs_url = f"{config.BACKEND_URL}/programs/"
         self._plans_url = f"{config.BACKEND_URL}/plans/"
+        self._schedules_url = f"{config.BACKEND_URL}/schedules/"
+        self._progress_url = f"{config.BACKEND_URL}/progress/"
 
     async def close(self) -> None:
         await self._client.aclose()
@@ -175,6 +177,18 @@ class CoachApiClient:
         if response.status_code == 404:
             return None
         return Plan(**response.json())
+
+    async def get_today_workout(self, telegram_id: int) -> Workout | None:
+        response = await self._safe_request("GET", f"{self._schedules_url}today-workout/{telegram_id}")
+        if response.status_code == 404:
+            return None
+        return Workout(**response.json())
+
+    async def save_progress(self, progress: ProgressCreateByTelegram) -> ProgressCreateByTelegram:
+        response = await self._safe_request("POST", f"{self._progress_url}by-telegram/", json={**progress.model_dump(mode="json")})
+        if response.status_code == 400:
+            raise CoachApiClientError("Failed to save progress")
+        return ProgressCreateByTelegram(**response.json(), telegram_id=progress.telegram_id)
 
 
 api_client = CoachApiClient()

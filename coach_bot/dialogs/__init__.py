@@ -6,6 +6,7 @@ from coach_bot.dialogs.user_menu.profile_dialog import profile_dialog
 from coach_bot.dialogs.user_menu.user_menu_dialog import main_menu_dialog
 from coach_bot.dialogs.user_menu.settings_menu_dialog import settings_dialog
 from coach_bot.dialogs.user_plan.user_plan_dialog import user_plan_dialog
+from coach_bot.dialogs.workout.workout_dialog import workout_dialog
 
 dialogs = [
     code_login_dialog,
@@ -16,4 +17,5 @@ dialogs = [
     profile_dialog,
     plan_create_dialog,
     user_plan_dialog,
+    workout_dialog,
 ]

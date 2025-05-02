@@ -50,3 +50,15 @@ class PlanCreateMenu(StatesGroup):
 
 class UserPlanMenu(StatesGroup):
     menu = State()
+
+
+class UserWorkout(StatesGroup):
+    enter_note = State()
+    enter_weight = State()
+    enter_duration = State()
+    enter_reps = State()
+    overview = State()
+    exercise = State()
+    completed = State()
+    no_workout = State()
+    enter_progress = State()
