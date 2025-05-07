@@ -1,4 +1,5 @@
 import logging
+from pprint import pprint
 
 import httpx
 
@@ -8,13 +9,7 @@ from coach_bot.exceptions.api import (
     BackupCodeInvalidOrUsed,
     TelegramIDAlreadyLinked,
 )
-from coach_bot.models.schemas import (
-    ClientProfileCreate,
-    ClientProfileShort,
-    Goal,
-    Plan,
-    PaginatedProgramList, Workout, ProgressCreateByTelegram,
-)
+from coach_bot.models import schemas
 
 logger = logging.getLogger(__name__)
 
@@ -57,8 +52,8 @@ class CoachApiClient:
             raise CoachApiClientError("Network request failed") from e
 
     async def create_or_update_user(
-        self, user: ClientProfileCreate,
-    ) -> ClientProfileShort | None:
+            self, user: schemas.ClientProfileCreate,
+    ) -> schemas.ClientProfileShort | None:
         response = await self._safe_request(
             "POST",
             f"{self._profiles_url}upsert/",
@@ -75,35 +70,35 @@ class CoachApiClient:
             raise CoachApiClientError("Invalid server response: missing goal_display")
 
         data["goal"] = data["goal_display"]
-        return ClientProfileShort(**data)
+        return schemas.ClientProfileShort(**data)
 
-    async def get_goals(self) -> list[Goal]:
+    async def get_goals(self) -> list[schemas.Goal]:
         response = await self._safe_request("GET", self._goals_url)
         data = response.json()
         if "results" not in data:
             logger.error("Invalid response format: missing 'results' key")
             raise CoachApiClientError("Invalid server response: missing results key")
-        return [Goal(**goal) for goal in data["results"]]
+        return [schemas.Goal(**goal) for goal in data["results"]]
 
-    async def get_goal(self, goal_id: int) -> Goal | None:
+    async def get_goal(self, goal_id: int) -> schemas.Goal | None:
         response = await self._safe_request("GET", f"{self._goals_url}{goal_id}/")
         if response.status_code == 404:
             return None
-        return Goal(**response.json())
+        return schemas.Goal(**response.json())
 
-    async def get_goal_by_slug(self, slug: str) -> Goal | None:
+    async def get_goal_by_slug(self, slug: str) -> schemas.Goal | None:
         response = await self._safe_request("GET", f"{self._goals_url}by-name/{slug}/")
         if response.status_code == 404:
             return None
-        return Goal(**response.json())
+        return schemas.Goal(**response.json())
 
-    async def get_profile(self, telegram_id: int) -> ClientProfileShort | None:
+    async def get_profile(self, telegram_id: int) -> schemas.ClientProfileShort | None:
         response = await self._safe_request(
             "GET", f"{self._profiles_url}by-telegram/{telegram_id}/",
         )
         if response.status_code == 404:
             return None
-        return ClientProfileShort(**response.json())
+        return schemas.ClientProfileShort(**response.json())
 
     async def get_backup_codes(self, telegram_id: int) -> list[str]:
         response = await self._safe_request(
@@ -144,13 +139,13 @@ class CoachApiClient:
             logger.warning("Unauthorized backup code")
             raise BackupCodeInvalidOrUsed()
 
-    async def get_programs(self, goal_id: int, location: str) -> PaginatedProgramList:
+    async def get_programs(self, goal_id: int, location: str, page: int, page_size: int = 1) -> schemas.PaginatedProgramList:
         response = await self._safe_request(
-            "GET", f"{self._programs_url}?goal={goal_id}&location={location}",
+            "GET", f"{self._programs_url}?goal={goal_id}&location={location}&page={page}&page_size={page_size}",
         )
-        return PaginatedProgramList(**response.json())
+        return schemas.PaginatedProgramList(**response.json())
 
-    async def create_plan_from_program(self, telegram_id: int, program_id: int) -> Plan:
+    async def create_plan_from_program(self, telegram_id: int, program_id: int) -> schemas.Plan:
         response = await self._safe_request(
             "POST",
             f"{self._plans_url}create/from-program/by-telegram/",
@@ -158,9 +153,9 @@ class CoachApiClient:
         )
         if response.status_code == 400:
             raise CoachApiClientError("Failed to create plan")
-        return Plan(**response.json())
+        return schemas.Plan(**response.json())
 
-    async def create_plan_auto(self, telegram_id: int) -> Plan:
+    async def create_plan_auto(self, telegram_id: int) -> schemas.Plan:
         response = await self._safe_request(
             "POST",
             f"{self._plans_url}create/ai/by-telegram/",
@@ -168,27 +163,47 @@ class CoachApiClient:
         )
         if response.status_code == 400:
             raise CoachApiClientError("Failed to create plan")
-        return Plan(**response.json())
+        return schemas.Plan(**response.json())
 
-    async def get_current_plan(self, telegram_id: int) -> Plan | None:
+    async def get_current_plan(self, telegram_id: int) -> schemas.Plan | None:
         response = await self._safe_request(
             "GET", f"{self._plans_url}current/by-telegram/{telegram_id}/",
         )
         if response.status_code == 404:
             return None
-        return Plan(**response.json())
+        return schemas.Plan(**response.json())
 
-    async def get_today_workout(self, telegram_id: int) -> Workout | None:
+    async def get_today_workout(self, telegram_id: int) -> schemas.Workout | None:
         response = await self._safe_request("GET", f"{self._schedules_url}today-workout/{telegram_id}")
         if response.status_code == 404:
             return None
-        return Workout(**response.json())
+        return schemas.Workout(**response.json())
 
-    async def save_progress(self, progress: ProgressCreateByTelegram) -> ProgressCreateByTelegram:
-        response = await self._safe_request("POST", f"{self._progress_url}by-telegram/", json={**progress.model_dump(mode="json")})
+    async def get_today_schedule(self, telegram_id: int) -> schemas.ScheduleDetail | None:
+        response = await self._safe_request("GET", f"{self._schedules_url}today-schedule/{telegram_id}")
+        if response.status_code == 404:
+            return None
+        pprint(response.json())
+        return schemas.ScheduleDetail(**response.json())
+
+    async def mark_workout_complete(self, telegram_id: int) -> None:
+        response = await self._safe_request("POST", f"{self._schedules_url}complete-today/",
+                                            json={"telegram_id": telegram_id})
+        if response.status_code == 404:
+            raise CoachApiClientError("Failed to mark workout completed")
+
+    async def save_progress(self, progress: schemas.ProgressCreateByTelegram) -> schemas.ProgressCreateByTelegram:
+        response = await self._safe_request("POST", f"{self._progress_url}by-telegram/",
+                                            json={**progress.model_dump(mode="json")})
         if response.status_code == 400:
             raise CoachApiClientError("Failed to save progress")
-        return ProgressCreateByTelegram(**response.json(), telegram_id=progress.telegram_id)
+        return schemas.ProgressCreateByTelegram(**response.json(), telegram_id=progress.telegram_id)
+
+    async def get_schedule(self, telegram_id: int, page: int, page_size: int = 10) -> schemas.PaginatedScheduleList:
+        response = await self._safe_request(
+            "GET", f"{self._schedules_url}by-telegram/?page={page}&page_size={page_size}&telegram_id={telegram_id}",
+        )
+        return schemas.PaginatedScheduleList(**response.json())
 
 
 api_client = CoachApiClient()

@@ -17,3 +17,8 @@ async def on_program_selected(callback: CallbackQuery, widget, manager: DialogMa
     await api_client.create_plan_from_program(telegram_id, item_id)
     await callback.message.answer("✅ План успешно создан по выбранной программе!")
     await manager.start(UserMainMenu.menu, mode=StartMode.RESET_STACK)
+
+
+async def on_choose_program(callback: CallbackQuery, widget, manager: DialogManager):
+    manager.dialog_data["page"] = 1
+    await manager.next()

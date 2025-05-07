@@ -5,9 +5,7 @@ from coach_bot.services.coach_api import api_client
 
 
 async def user_plan_getter(dialog_manager: DialogManager, **kwargs):
-    plan: Plan | None = await api_client.get_current_plan(dialog_manager.event.from_user.id)
-    if not plan:
-        return {"plan_text": "❌ План не найден."}
+    plan: Plan = dialog_manager.dialog_data["plan"]
 
     start_date = plan.start_date
     end_date = plan.end_date

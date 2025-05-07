@@ -23,3 +23,4 @@ def parse_time(text: str) -> time | None:
 
     except ValueError:
         return None
+

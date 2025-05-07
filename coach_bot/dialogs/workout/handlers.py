@@ -1,3 +1,4 @@
+import logging
 from datetime import date
 
 from aiogram.types import CallbackQuery
@@ -11,9 +12,7 @@ from coach_bot.models.schemas import Workout, ProgressCreateByTelegram
 from coach_bot.services.coach_api import api_client
 from coach_bot.states.user import UserWorkout, UserMainMenu
 
-
-def on_finish_workout():
-    return None
+logger = logging.getLogger(__name__)
 
 
 async def start_exercise(callback: CallbackQuery, button: Button, manager: DialogManager):
@@ -24,6 +23,7 @@ async def start_exercise(callback: CallbackQuery, button: Button, manager: Dialo
 async def next_exercise(callback: types.CallbackQuery, button: Button, manager: DialogManager):
     current_index = manager.dialog_data.get("current_index", 0)
     workout = manager.dialog_data.get("workout")
+    telegram_id = callback.from_user.id
 
     if not workout:
         await callback.answer("⚠️ Тренировка не найдена.", show_alert=True)
@@ -31,7 +31,12 @@ async def next_exercise(callback: types.CallbackQuery, button: Button, manager: 
         return
 
     if current_index + 1 >= len(workout.exercises_list):
-        await callback.message.answer("🏁 Вы завершили тренировку! Отличная работа!")
+        try:
+            await api_client.mark_workout_complete(telegram_id)
+        except Exception as e:
+            logger.warning("Не удалось отметить тренировку завершённой", exc_info=e)
+
+        await callback.message.answer("🏁 Вы завершили тренировку! Отличная работа! 💪")
         await manager.start(UserMainMenu.menu)
         return
 

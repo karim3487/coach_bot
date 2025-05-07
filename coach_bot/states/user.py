@@ -62,3 +62,7 @@ class UserWorkout(StatesGroup):
     completed = State()
     no_workout = State()
     enter_progress = State()
+
+
+class UserSchedule(StatesGroup):
+    menu = State()
