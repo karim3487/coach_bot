@@ -7,12 +7,7 @@ async def programs_getter(dialog_manager, **kwargs):
     current_page = dialog_manager.dialog_data.get("page", 1)
 
     profile = await api_client.get_profile(user_id)
-    goal = await api_client.get_goal_by_slug(slugify(profile.goal))
-
-    if not goal:
-        raise ValueError("Goal not found")
-    # - – —
-    response = await api_client.get_programs(goal.id, profile.training_location.value, page=current_page)
+    response = await api_client.get_programs(profile.goal.id, profile.training_location.value, page=current_page)
     dialog_manager.dialog_data["page"] = current_page
     dialog_manager.dialog_data["total_pages"] = response.total_pages
 

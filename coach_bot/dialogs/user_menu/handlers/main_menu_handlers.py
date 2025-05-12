@@ -6,7 +6,7 @@ from aiogram_dialog.widgets import kbd
 
 from coach_bot.models.schemas import Workout, Schedule, ScheduleDetail
 from coach_bot.services.coach_api import api_client
-from coach_bot.states.user import PlanCreateMenu, UserPlanMenu, UserWorkout, UserMainMenu
+from coach_bot.states.user import PlanCreateMenu, UserPlanMenu, UserWorkout, UserMainMenu, UserProgress
 
 logger = logging.getLogger(__name__)
 
@@ -41,8 +41,19 @@ async def on_start_workout_clicked(callback: types.CallbackQuery, button: kbd.Bu
 
 
 async def on_progress_clicked(callback: types.CallbackQuery, button: kbd.Button, manager: DialogManager):
-    await manager.start(UserMainMenu.menu, mode=StartMode.RESET_STACK)
-    await callback.answer("📈 Ваш прогресс! (пока не реализовано)", show_alert=True, cache_time=1)
+    telegram_id = callback.from_user.id
+    try:
+        progress_entries = await api_client.get_progress(telegram_id)
+        if not progress_entries:
+            await manager.start(UserMainMenu.menu, mode=StartMode.RESET_STACK)
+            await callback.answer("Пока нет записей о прогрессе.", show_alert=True, cache_time=1)
+            return
+        manager.dialog_data["progress_entries"] = progress_entries
+        manager.dialog_data["page"] = 1
+        await manager.start(UserProgress.menu, mode=StartMode.RESET_STACK)
+    except Exception as e:
+        logger.exception("Ошибка при загрузке прогресса", exc_info=e)
+        await callback.answer("❌ Не удалось загрузить прогресс", show_alert=True)
 
 
 async def on_my_plan_clicked(callback: types.CallbackQuery, button: kbd.Button, manager: DialogManager):
@@ -52,7 +63,7 @@ async def on_my_plan_clicked(callback: types.CallbackQuery, button: kbd.Button, 
         if not plan:
             await manager.start(PlanCreateMenu.start, mode=StartMode.RESET_STACK, data={"page": 1})
         else:
-            # manager.dialog_data["plan"] = plan
+            manager.dialog_data["plan"] = plan
             await manager.start(UserPlanMenu.menu, mode=StartMode.RESET_STACK, data={"plan": plan})
     except Exception as e:
         logger.exception("Failed to check user plan", exc_info=e)

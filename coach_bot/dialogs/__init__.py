@@ -2,6 +2,7 @@ from coach_bot.dialogs.code_login import code_login_dialog
 from coach_bot.dialogs.guest_menu import guest_menu_dialog
 from coach_bot.dialogs.plan_create.plan_create_dialog import plan_create_dialog
 from coach_bot.dialogs.profile_form.profile_form_dialog import profile_form_dialog
+from coach_bot.dialogs.progress.progress_dialog import progress_dialog
 from coach_bot.dialogs.schedule.schedule_dialog import schedule_dialog
 from coach_bot.dialogs.user_menu.profile_dialog import profile_dialog
 from coach_bot.dialogs.user_menu.user_menu_dialog import main_menu_dialog
@@ -20,4 +21,5 @@ dialogs = [
     user_plan_dialog,
     workout_dialog,
     schedule_dialog,
+    progress_dialog,
 ]

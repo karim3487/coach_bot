@@ -66,3 +66,6 @@ class UserWorkout(StatesGroup):
 
 class UserSchedule(StatesGroup):
     menu = State()
+
+class UserProgress(StatesGroup):
+    menu = State()

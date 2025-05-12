@@ -28,6 +28,6 @@ async def get_user_profile(dialog_manager: DialogManager, **kwargs):
         "contraindications": get_display_list(CONTRAINDICATIONS, profile.contraindications),
         "available_days": ", ".join(get_display_list(DAYS_OF_WEEK, profile.available_days)),
         "preferred_time": profile.preferred_time,
-        "goal_display": profile.goal,
+        "goal_display": profile.goal.name,
         "user_name": profile.name,
     }

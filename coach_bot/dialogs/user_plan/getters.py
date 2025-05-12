@@ -1,11 +1,10 @@
 from aiogram_dialog import DialogManager
 
 from coach_bot.models.schemas import Plan
-from coach_bot.services.coach_api import api_client
 
 
 async def user_plan_getter(dialog_manager: DialogManager, **kwargs):
-    plan: Plan = dialog_manager.dialog_data["plan"]
+    plan: Plan = dialog_manager.start_data["plan"]
 
     start_date = plan.start_date
     end_date = plan.end_date
