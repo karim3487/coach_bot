@@ -19,7 +19,7 @@ async def schedule_getter(dialog_manager: DialogManager, **kwargs):
     for item in response.results:
         status = "✅" if item.completed else "🕒"
         formatted = format_datetime(item.date, item.time)
-        workout_name = item.workout_name if item.workout_name else "Без названия"
+        workout_name = item.workout_name or "Без названия"
         lines.append(f"{status} {formatted} — {workout_name}")
 
     return {

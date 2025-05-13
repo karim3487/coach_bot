@@ -1,5 +1,7 @@
 from typing import Any
 
+from coach_bot.utils.parse_time import parse_time
+
 
 def is_valid_input(field: str, value: str) -> bool:
     try:
@@ -12,9 +14,7 @@ def is_valid_input(field: str, value: str) -> bool:
         if field == "name":
             return bool(value)
         if field == "preferred_time":
-            import re
-
-            return bool(re.match(r"^(2[0-3]|[01]?[0-9]):[0-5][0-9]$", value))
+            return bool(parse_time(value))
         return True
     except Exception:
         return False

@@ -42,13 +42,12 @@ def switch_relative_page(offset: int):
 
 progress_dialog = Dialog(
     Window(
-        text.Format("📈 <b>Ваш прогресс:</b>\n\n{progress_text}\n\n"
-                    "📄 Страница {current_page} из {total_pages}"),
+        text.Format("{progress_text}"),
         pagination_buttons(),
         kbd.Row(
             kbd.Start(text.Const("⬅️ Назад в меню"), id="back", state=UserMainMenu.menu),
         ),
         state=UserProgress.menu,
         getter=progress_getter,
-    )
+    ),
 )

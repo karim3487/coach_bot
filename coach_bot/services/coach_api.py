@@ -199,8 +199,8 @@ class CoachApiClient:
             raise CoachApiClientError("Failed to save progress")
         return schemas.ProgressCreateByTelegram(**response.json(), telegram_id=progress.telegram_id)
 
-    async def get_progress(self, telegram_id: int) -> schemas.PaginatedProgressList:
-        response = await self._safe_request("GET", f"{self._progress_url}by-telegram/?telegram_id={telegram_id}",)
+    async def get_progress(self, telegram_id: int, page: int, page_size: int = 10) -> schemas.PaginatedProgressList:
+        response = await self._safe_request("GET", f"{self._progress_url}by-telegram/?page={page}&page_size={page_size}&telegram_id={telegram_id}")
         return schemas.PaginatedProgressList(**response.json())
 
     async def get_schedule(self, telegram_id: int, page: int, page_size: int = 10) -> schemas.PaginatedScheduleList:

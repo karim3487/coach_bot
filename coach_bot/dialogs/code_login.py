@@ -36,7 +36,7 @@ code_login_dialog = Dialog(
     Window(
         Const("🔐 Ведите ваш резервный код:"),
         TextInput(id="code", on_success=on_code_entered),
-        Cancel(Const("🔙 Назад")),
+        Cancel(Const("⬅️ Назад")),
         state=CodeLogin.enter_code,
     ),
 )

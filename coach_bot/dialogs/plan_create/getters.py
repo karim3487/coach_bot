@@ -1,4 +1,3 @@
-from slugify import slugify
 from coach_bot.services.coach_api import api_client
 
 

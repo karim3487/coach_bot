@@ -1,11 +1,11 @@
-from aiogram import types
 from aiogram.types import CallbackQuery
 from aiogram_dialog import Window, Dialog, DialogManager
 from aiogram_dialog.widgets import kbd
 from aiogram_dialog.widgets import text
 
 from coach_bot.dialogs.schedule.getters import schedule_getter
-from coach_bot.states.user import UserSchedule, UserPlanMenu, UserMainMenu
+from coach_bot.dialogs.user_menu.handlers.main_menu_handlers import on_my_plan_clicked
+from coach_bot.states.user import UserSchedule
 
 ID_SCROLL_SCHEDULE = "scroll_schedule"
 
@@ -49,8 +49,8 @@ schedule_dialog = Dialog(
         text.Format("📅 <b>Ваше расписание:</b>\n\n{schedule_text}\n\n"
                     "📄 Страница {current_page} из {total_pages}"),
         schedule_pagination_buttons(),
-        kbd.Start(text.Const("⬅️ Назад в меню"), id="back", state=UserMainMenu.menu),
+        kbd.Button(text.Const("⬅️ Назад"), id="my_plan", on_click=on_my_plan_clicked),
         getter=schedule_getter,
         state=UserSchedule.menu,
-    )
+    ),
 )

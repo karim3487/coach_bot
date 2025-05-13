@@ -645,7 +645,7 @@ class Workout(BaseModel):
     active: Optional[bool] = Field(
         None, description='If unchecked, this workout is archived'
     )
-    exercises: List[WorkoutExerciseCreate]
+    exercises: Optional[List[WorkoutExerciseCreate]] = None
     exercises_list: List[WorkoutExerciseRead]
 
 
@@ -668,7 +668,7 @@ class ScheduleDetail(BaseModel):
         ..., description='Sequential number of workout in the plan'
     )
     completed: Optional[bool] = Field(None, description='Was the workout completed?')
-    completed_at: datetime = Field(
+    completed_at: datetime | None = Field(
         ..., description='Timestamp when workout was completed'
     )
     notes: Optional[str] = Field(None, description='Optional user notes or feedback')

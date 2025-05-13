@@ -47,7 +47,7 @@ profile_dialog = Dialog(
                 on_click=on_edit_profile_clicked,
             ),
             kbd.Start(
-                Const("🔙 Назад"), id="back_to_settings", state=Settings.menu,
+                Const("⬅️ Назад"), id="back_to_settings", state=Settings.menu,
             ),
         ),
         kbd.Row(
