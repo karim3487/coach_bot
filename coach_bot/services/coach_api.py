@@ -65,11 +65,7 @@ class CoachApiClient:
             return None
 
         data = response.json()
-        if "goal_display" not in data:
-            logger.error("Missing 'goal_display' in create_or_update_user response")
-            raise CoachApiClientError("Invalid server response: missing goal_display")
-
-        data["goal"] = data["goal_display"]
+        data["goal"] = schemas.Goal(**data["goal"])
         return schemas.ClientProfileShort(**data)
 
     async def get_goals(self) -> list[schemas.Goal]:
