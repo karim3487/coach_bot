@@ -205,7 +205,7 @@ class Progress(BaseModel):
 
 
 class ProgressCreateByTelegram(BaseModel):
-    id: int
+    # id: int
     telegram_id: int
     date: date_aliased = Field(..., description='Date of progress record')
     metric: constr(max_length=50) = Field(
